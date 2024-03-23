@@ -4,11 +4,11 @@ import { HowlerMock } from '../__mocks__/howler-mock';
 import { AUDIO_FIXTURE_01 } from '../__fixtures__/01-audio-plays-to-end.fixture';
 import { audioPlayer } from '../../src/utils/audio-player';
 import { eventDispatcher } from '../../src/utils/event-dispatcher';
-import { AudioEvents } from '../../src/types/audio.types';
+import { AudioActions, AudioEvents } from '../../src/types/audio.types';
 import { AuditLogEntry } from '../../src/types/event-dispatcher.types';
-import { AudioAsset } from '../__structures__/audio-fixture.types';
+import { AudioAsset, AudioStep } from '../__structures__/audio-fixture.types';
 
-const { assertions, assets } = AUDIO_FIXTURE_01;
+const { assertions, assets, sequence } = AUDIO_FIXTURE_01;
 
 vi.mock('howler', () => ({ Howl: HowlerMock }));
 
@@ -46,9 +46,23 @@ const setupAuditTrail = (logFile: AuditLogEntry[]) => {
   });
 };
 
-const startLoadStep = (assets: AudioAsset[]) => {
-  assets.forEach((asset) => {
+const loadAssets = (assetsToLoad: AudioAsset[]) => {
+  assetsToLoad.forEach((asset) => {
     audioPlayer.load(asset.src, { testingProperties: asset });
+  });
+};
+
+const performSequenceSteps = (sequenceToPlay: AudioStep[]) => {
+  sequenceToPlay.forEach((step) => {
+    if (step.action === AudioActions.play) {
+      const referenceAsset = assets.find(({ id }) => id === step.ref);
+
+      if (!referenceAsset) {
+        throw new Error(`Asset for ref: ${step.ref} not found`);
+      }
+
+      audioPlayer.play(referenceAsset.src);
+    }
   });
 };
 
@@ -58,9 +72,9 @@ describe('Audio Plays to End', () => {
   beforeAll(() => {
     startCleanSlate();
     setupAuditTrail(logs);
-    startLoadStep(assets);
+    loadAssets(assets);
+    performSequenceSteps(sequence);
 
-    audioPlayer.play(assets[0].src);
     vi.runAllTimers();
   });
 
