@@ -1,12 +1,11 @@
 import {
   AudioActions,
   AudioEvents,
+  AudioId,
   AudioSource,
   TimeInMilleseconds,
+  Uuid,
 } from '../../src/types/audio.types';
-
-export type Uuid = string & { __brand: 'Uuid' };
-export type AudioId = string & { __brand: 'AudioId' };
 
 export type AudioAsset = {
   id: AudioId;
@@ -25,12 +24,14 @@ export type RawAsset = {
 export type AudioStep = {
   id: Uuid;
   ref: AudioId;
+  timestamp: TimeInMilleseconds;
   action: keyof typeof AudioActions;
 };
 
 export type RawStep = {
   id: string;
   ref: string;
+  timestamp: number;
   action: string;
 };
 

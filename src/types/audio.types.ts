@@ -8,6 +8,8 @@ export type AudioSource = string & { __brand: 'AudioSource' };
 export type OnLoadCompletedFn = () => void;
 
 export type TimeInMilleseconds = number & { __brand: 'TimeInMilleseconds' };
+export type Uuid = string & { __brand: 'Uuid' };
+export type AudioId = string & { __brand: 'AudioId' };
 
 export enum AudioActions {
   load = 'load',

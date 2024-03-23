@@ -1,7 +1,12 @@
-import { TimeInMilleseconds } from '../types/audio.types';
+import { AudioSource, TimeInMilleseconds, Uuid } from '../types/audio.types';
 
 declare module 'howler' {
-  interface HowlOptions {
-    seekEndPosition: TimeInMilleseconds;
+  export interface HowlOptions {
+    testingProperties?: {
+      id: Uuid;
+      name: string;
+      duration: TimeInMilleseconds;
+      src: AudioSource;
+    };
   }
 }

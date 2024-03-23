@@ -5,9 +5,7 @@ type EventCallback = () => void;
 type EventMap = Record<keyof typeof AudioActions, EventCallback[]>;
 
 export class HowlerMock {
-  #seekEndPosition: TimeInMilleseconds;
-
-  #seekPosition: TimeInMilleseconds = 0 as TimeInMilleseconds;
+  #internalSeek: TimeInMilleseconds;
 
   #timerId: ReturnType<typeof setInterval>;
 
@@ -22,8 +20,19 @@ export class HowlerMock {
 
   #playing: boolean;
 
-  constructor({ seekEndPosition }) {
-    this.#seekEndPosition = seekEndPosition;
+  #testingProperties = {
+    duration: 0,
+    id: 'placeholder-uuid',
+    name: 'Placeholder Name',
+    src: 'placeholder.mp4',
+  };
+
+  constructor({ testingProperties }) {
+    this.#internalSeek = 0 as TimeInMilleseconds;
+    this.#testingProperties = {
+      ...this.#testingProperties,
+      ...testingProperties,
+    };
   }
 
   playing() {
@@ -83,9 +92,13 @@ export class HowlerMock {
   }
 
   #update = () => {
-    this.#seekPosition = (this.#seekPosition + 50) as TimeInMilleseconds;
+    const { duration } = this.#testingProperties;
 
-    if (this.#seekPosition >= this.#seekEndPosition) {
+    const position = this.#internalSeek || 0;
+
+    this.#internalSeek = (position + 50) as TimeInMilleseconds;
+
+    if (this.#internalSeek >= duration) {
       clearInterval(this.#timerId);
       this.#end();
     }
@@ -99,7 +112,11 @@ export class HowlerMock {
     this.#playing = false;
   }
 
-  seek(seekPosition: TimeInMilleseconds) {
-    this.#seekPosition = seekPosition;
+  seek(seek: TimeInMilleseconds) {
+    if (seek === undefined) {
+      return this.#internalSeek;
+    }
+
+    this.#internalSeek = seek;
   }
 }

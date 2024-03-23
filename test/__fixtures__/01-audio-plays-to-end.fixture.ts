@@ -18,6 +18,7 @@ const raw = {
     {
       id: '99adef51-6797-43f3-b38a-b4fe010b6703',
       ref: 'aa1c555b-1c98-4ddb-81f7-62dc173cc20c',
+      timestamp: 0,
       action: 'play',
     },
   ],

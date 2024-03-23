@@ -3,17 +3,20 @@ import {
   AudioActions,
   AudioEvents,
   TimeInMilleseconds,
+  Uuid,
+  AudioId,
 } from '../../src/types/audio.types';
 import {
   AudioAssertion,
   AudioAsset,
-  AudioId,
   AudioStep,
   RawAssertion,
   RawAsset,
   RawStep,
-  Uuid,
 } from './audio-fixture.types';
+
+const RawStepKeys = ['id', 'ref', 'timestamp', 'action'].toString();
+const RawEventKeys = ['id', 'ref', 'timestamp', 'event'].toString();
 
 /**
  *
@@ -43,9 +46,14 @@ export const toSequenceSteps = (raws: Array<RawStep>): AudioStep[] =>
       throw new Error(`id ${raw.id} has invalid action ${raw.action}`);
     }
 
+    if (Object.keys(raw).toString() !== RawStepKeys) {
+      throw new Error(`id ${raw.id} has invalid order or missing keys`);
+    }
+
     return {
       id: raw.id as Uuid,
       ref: raw.ref as AudioId,
+      timestamp: raw.timestamp as TimeInMilleseconds,
       action: raw.action as keyof typeof AudioActions,
     };
   });
@@ -63,10 +71,14 @@ export const toAssertions = (raws: Array<RawAssertion>): AudioAssertion[] =>
       throw new Error(`id ${raw.id} has invalid event ${raw.event}`);
     }
 
+    if (Object.keys(raw).toString() !== RawEventKeys) {
+      throw new Error(`id ${raw.id} has invalid order or missing keys`);
+    }
+
     return {
       id: raw.id as Uuid,
       ref: raw.ref as AudioId,
-      event: raw.event as keyof typeof AudioEvents,
       timestamp: raw.timestamp as TimeInMilleseconds,
+      event: raw.event as keyof typeof AudioEvents,
     };
   });

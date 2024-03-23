@@ -1,19 +1,23 @@
-import { Howl } from 'howler';
+import { Howl, HowlOptions } from 'howler';
 import { eventDispatcher } from './event-dispatcher';
 import {
   AudioEvents,
   AudioSource,
   OnLoadCompletedFn,
-  TimeInMilleseconds,
 } from '../types/audio.types';
 
 type LoadOptions = {
   onLoadCompleted?: OnLoadCompletedFn;
-  seekEndPosition?: TimeInMilleseconds;
+  testingProperties?: HowlOptions['testingProperties'];
+};
+
+type InternalAudio = {
+  howl: Howl;
+  testingProperties?: HowlOptions['testingProperties'];
 };
 
 export class AudioPlayer {
-  #audios: Record<AudioSource, Howl> = {};
+  #audios: Record<AudioSource, InternalAudio> = {};
 
   get audios() {
     return this.#audios;
@@ -34,7 +38,9 @@ export class AudioPlayer {
   };
 
   #update = (src: AudioSource, updaterId: number) => {
-    if (!this.audios[src].playing()) {
+    const { howl } = this.audios[src];
+
+    if (!howl.playing()) {
       cancelAnimationFrame(updaterId);
       return;
     }
@@ -47,26 +53,33 @@ export class AudioPlayer {
   };
 
   load(src: AudioSource, options: LoadOptions) {
-    const { onLoadCompleted, seekEndPosition } = options;
+    const { onLoadCompleted, testingProperties } = options;
 
     const howl = new Howl({
       src: [src],
       autoplay: false,
-      seekEndPosition: seekEndPosition ?? (0 as TimeInMilleseconds),
+      testingProperties,
     });
 
     howl.on('load', () => {
-      eventDispatcher.emit(AudioEvents.loaded, { src });
+      eventDispatcher.emit(AudioEvents.loaded, {
+        log: {
+          name: testingProperties?.name,
+          ref: testingProperties?.id,
+          timestamp: howl.seek() || 0,
+          event: AudioEvents.loaded,
+        },
+      });
       onLoadCompleted?.();
     });
 
     howl.load();
 
-    this.#audios[src] = howl;
+    this.#audios[src] = { howl, testingProperties };
   }
 
   unload(src: AudioSource) {
-    const howl = this.audios[src];
+    const { howl } = this.audios[src];
 
     howl.unload();
   }
@@ -76,7 +89,7 @@ export class AudioPlayer {
    * @param {AudioSource} src
    */
   play(src: AudioSource) {
-    const howl = this.audios[src];
+    const { howl, testingProperties } = this.audios[src];
 
     if (!howl) {
       throw new Error(`Audio ${src} must be loaded manually`);
@@ -89,21 +102,49 @@ export class AudioPlayer {
     howl.off('end');
 
     howl.on('play', () => {
-      eventDispatcher.emit(AudioEvents.playing, { src });
+      eventDispatcher.emit(AudioEvents.playing, {
+        log: {
+          name: testingProperties?.name,
+          ref: testingProperties?.id,
+          timestamp: howl.seek() || 0,
+          event: AudioEvents.playing,
+        },
+      });
 
       this.#update(src, 0);
     });
 
     howl.once('pause', () => {
-      eventDispatcher.emit(AudioEvents.paused, { src });
+      eventDispatcher.emit(AudioEvents.paused, {
+        log: {
+          name: testingProperties?.name,
+          ref: testingProperties?.id,
+          timestamp: howl.seek() || 0,
+          event: AudioEvents.paused,
+        },
+      });
     });
 
     howl.once('stop', () => {
-      eventDispatcher.emit(AudioEvents.stopped, { src });
+      eventDispatcher.emit(AudioEvents.stopped, {
+        log: {
+          name: testingProperties?.name,
+          ref: testingProperties?.id,
+          timestamp: howl.seek() || 0,
+          event: AudioEvents.stopped,
+        },
+      });
     });
 
     howl.once('end', () => {
-      eventDispatcher.emit(AudioEvents.ended, { src });
+      eventDispatcher.emit(AudioEvents.ended, {
+        log: {
+          name: testingProperties?.name,
+          ref: testingProperties?.id,
+          timestamp: howl.seek() || 0,
+          event: AudioEvents.ended,
+        },
+      });
     });
 
     howl.seek(0);
@@ -115,7 +156,7 @@ export class AudioPlayer {
    * @param {AudioSource} src
    */
   pause(src: AudioSource) {
-    const howl = this.audios[src];
+    const { howl } = this.audios[src];
 
     howl.pause();
   }
@@ -125,7 +166,7 @@ export class AudioPlayer {
    * @param {AudioSource} src
    */
   stop(src: AudioSource) {
-    const howl = this.audios[src];
+    const { howl } = this.audios[src];
 
     howl.stop();
   }
@@ -135,7 +176,7 @@ export class AudioPlayer {
    * @param {AudioSource} src
    */
   resume(src: AudioSource) {
-    const howl = this.audios[src];
+    const { howl } = this.audios[src];
 
     if (!howl.seek()) {
       return;
