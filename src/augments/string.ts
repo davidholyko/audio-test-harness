@@ -1,4 +1,4 @@
-import { AudioSource } from '../types/audio-types';
+import { AudioSource } from '../types/audio.types';
 
 declare global {
   interface String {

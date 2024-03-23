@@ -1,6 +1,6 @@
 import { Howl } from 'howler';
 import { eventDispatcher } from './event-dispatcher';
-import { AudioSource, OnLoadCompletedFn } from '../types/audio-types';
+import { AudioSource, OnLoadCompletedFn } from '../types/audio.types';
 
 export class AudioPlayer {
   #audios: Record<AudioSource, Howl> = {};

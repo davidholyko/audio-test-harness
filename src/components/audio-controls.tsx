@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { audioPlayer } from '../utils/audio-player';
-import { AudioSource } from '../types/audio-types';
+import { AudioSource } from '../types/audio.types';
 
 type AudioControlsProps = {
   src: AudioSource;
