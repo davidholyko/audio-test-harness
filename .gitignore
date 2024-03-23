@@ -1,0 +1,7 @@
+# hidden
+.git
+.vscode/settings.json
+
+# modules / build
+node_modules
+dist
