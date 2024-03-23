@@ -15,7 +15,7 @@ export function AudioControls(props: AudioControlsProps) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    audioPlayer.load(src, () => setIsLoaded(true));
+    audioPlayer.load(src, { onLoadCompleted: () => setIsLoaded(true) });
 
     return () => {
       audioPlayer.unload(src);

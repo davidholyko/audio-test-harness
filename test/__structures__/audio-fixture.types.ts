@@ -1,27 +1,17 @@
-export enum AudioActions {
-  play = 'play',
-  pause = 'pause',
-  stop = 'stop',
-  resume = 'resume',
-}
-
-export enum AudioEvents {
-  loaded = 'loaded',
-  playing = 'playing',
-  paused = 'paused',
-  stopped = 'stopped',
-  ended = 'ended',
-}
+import {
+  AudioActions,
+  AudioEvents,
+  AudioSource,
+  TimeInMilleseconds,
+} from '../../src/types/audio.types';
 
 export type Uuid = string & { __brand: 'Uuid' };
 export type AudioId = string & { __brand: 'AudioId' };
-export type AudioSrc = string & { __brand: 'AudioSrc' };
-export type TimeInMilleseconds = number & { __brand: 'TimeInMilleseconds' };
 
 export type AudioAsset = {
   id: AudioId;
   name: string;
-  src: AudioSrc;
+  src: AudioSource;
   duration: TimeInMilleseconds;
 };
 

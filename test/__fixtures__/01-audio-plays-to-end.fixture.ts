@@ -23,7 +23,7 @@ const raw = {
   ],
   assertions: [
     {
-      id: '130b58f9-b051-4afc-bc68-4c3f186dc923',
+      id: 'ccc8ef34-66fe-49df-91b3-6026fb21f569',
       ref: 'aa1c555b-1c98-4ddb-81f7-62dc173cc20c',
       timestamp: 0,
       event: 'loaded',
@@ -35,7 +35,7 @@ const raw = {
       event: 'playing',
     },
     {
-      id: '047cf99b-354b-4ab9-82b6-54e5708aa8f6',
+      id: '3cf34e15-7ef0-4397-b7fb-e18d8b6fb01b',
       ref: 'aa1c555b-1c98-4ddb-81f7-62dc173cc20c',
       timestamp: 5000,
       event: 'ended',
@@ -49,4 +49,4 @@ const conversion = [
   toAssertions(raw.assertions),
 ] as const;
 
-export const audio_fixture_01 = new AudioFixture(...conversion);
+export const AUDIO_FIXTURE_01 = new AudioFixture(...conversion);

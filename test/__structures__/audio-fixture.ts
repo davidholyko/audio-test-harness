@@ -1,7 +1,5 @@
 import { AudioAssertion, AudioAsset, AudioStep } from './audio-fixture.types';
 
-import './augments/array';
-
 export class AudioFixture {
   #assets: AudioAsset[];
 

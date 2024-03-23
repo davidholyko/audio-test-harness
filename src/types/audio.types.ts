@@ -6,3 +6,22 @@
 export type AudioSource = string & { __brand: 'AudioSource' };
 
 export type OnLoadCompletedFn = () => void;
+
+export type TimeInMilleseconds = number & { __brand: 'TimeInMilleseconds' };
+
+export enum AudioActions {
+  load = 'load',
+  play = 'play',
+  pause = 'pause',
+  stop = 'stop',
+  resume = 'resume',
+  end = 'end',
+}
+
+export enum AudioEvents {
+  loaded = 'loaded',
+  playing = 'playing',
+  paused = 'paused',
+  stopped = 'stopped',
+  ended = 'ended',
+}

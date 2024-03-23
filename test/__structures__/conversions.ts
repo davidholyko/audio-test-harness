@@ -1,15 +1,17 @@
 import {
+  AudioSource,
   AudioActions,
+  AudioEvents,
+  TimeInMilleseconds,
+} from '../../src/types/audio.types';
+import {
   AudioAssertion,
   AudioAsset,
-  AudioEvents,
   AudioId,
-  AudioSrc,
   AudioStep,
   RawAssertion,
   RawAsset,
   RawStep,
-  TimeInMilleseconds,
   Uuid,
 } from './audio-fixture.types';
 
@@ -24,7 +26,7 @@ export const toAssets = (raws: Array<RawAsset>): AudioAsset[] =>
   raws.map((raw) => ({
     id: raw.id as AudioId,
     name: raw.name as string,
-    src: raw.src as AudioSrc,
+    src: raw.src as AudioSource,
     duration: raw.duration as TimeInMilleseconds,
   }));
 

@@ -1,4 +1,4 @@
-import './augments/string';
+import './augments';
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';

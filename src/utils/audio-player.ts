@@ -1,6 +1,16 @@
 import { Howl } from 'howler';
 import { eventDispatcher } from './event-dispatcher';
-import { AudioSource, OnLoadCompletedFn } from '../types/audio.types';
+import {
+  AudioEvents,
+  AudioSource,
+  OnLoadCompletedFn,
+  TimeInMilleseconds,
+} from '../types/audio.types';
+
+type LoadOptions = {
+  onLoadCompleted?: OnLoadCompletedFn;
+  seekEndPosition?: TimeInMilleseconds;
+};
 
 export class AudioPlayer {
   #audios: Record<AudioSource, Howl> = {};
@@ -36,11 +46,17 @@ export class AudioPlayer {
     });
   };
 
-  load(src: AudioSource, onLoadCompleted?: OnLoadCompletedFn) {
-    const howl = new Howl({ src: [src], autoplay: false });
+  load(src: AudioSource, options: LoadOptions) {
+    const { onLoadCompleted, seekEndPosition } = options;
+
+    const howl = new Howl({
+      src: [src],
+      autoplay: false,
+      seekEndPosition: seekEndPosition ?? (0 as TimeInMilleseconds),
+    });
 
     howl.on('load', () => {
-      eventDispatcher.emit('LOADED', { src });
+      eventDispatcher.emit(AudioEvents.loaded, { src });
       onLoadCompleted?.();
     });
 
@@ -62,6 +78,10 @@ export class AudioPlayer {
   play(src: AudioSource) {
     const howl = this.audios[src];
 
+    if (!howl) {
+      throw new Error(`Audio ${src} must be loaded manually`);
+    }
+
     // reset all listeners
     howl.off('play');
     howl.off('pause');
@@ -69,21 +89,21 @@ export class AudioPlayer {
     howl.off('end');
 
     howl.on('play', () => {
-      eventDispatcher.emit('PLAYING', { src });
+      eventDispatcher.emit(AudioEvents.playing, { src });
 
       this.#update(src, 0);
     });
 
     howl.once('pause', () => {
-      eventDispatcher.emit('PAUSED', { src });
+      eventDispatcher.emit(AudioEvents.paused, { src });
     });
 
     howl.once('stop', () => {
-      eventDispatcher.emit('STOPPED', { src });
+      eventDispatcher.emit(AudioEvents.stopped, { src });
     });
 
     howl.once('end', () => {
-      eventDispatcher.emit('ENDED', { src });
+      eventDispatcher.emit(AudioEvents.ended, { src });
     });
 
     howl.seek(0);
@@ -122,6 +142,10 @@ export class AudioPlayer {
     }
 
     howl.play();
+  }
+
+  getAudios() {
+    return this.#audios;
   }
 }
 
