@@ -28,19 +28,28 @@ export const setupAuditTrail = (logFile: AuditLogEntry[]) => {
   eventDispatcher.on(AudioEvents.ended, addToLog);
 };
 
-export const loadAssets = (assetsToLoad: AudioAsset[]) => {
+export const loadAssets = (
+  sequenceToPlay: AudioStep[],
+  assetsToLoad: AudioAsset[]
+) => {
   assetsToLoad.forEach((asset) => {
-    audioPlayer.load(asset.src, { testingProperties: asset });
+    const testingProperties = {
+      ...asset,
+      delay: sequenceToPlay.find((step) => step.ref === asset.id)?.timestamp,
+    };
+    audioPlayer.load(asset.src, { testingProperties });
   });
 };
 
 export const performSequenceSteps = (
   sequenceToPlay: AudioStep[],
-  assets: AudioAsset[]
+  assetsAlreadyLoaded: AudioAsset[]
 ) => {
   sequenceToPlay.forEach((step) => {
     if (step.action === AudioActions.play) {
-      const referenceAsset = assets.find(({ id }) => id === step.ref);
+      const referenceAsset = assetsAlreadyLoaded.find(
+        ({ id }) => id === step.ref
+      );
 
       if (!referenceAsset) {
         throw new Error(`Asset for ref: ${step.ref} not found`);
@@ -52,7 +61,9 @@ export const performSequenceSteps = (
     }
 
     if (step.action === AudioActions.pause) {
-      const referenceAsset = assets.find(({ id }) => id === step.ref);
+      const referenceAsset = assetsAlreadyLoaded.find(
+        ({ id }) => id === step.ref
+      );
 
       if (!referenceAsset) {
         throw new Error(`Asset for ref: ${step.ref} not found`);
@@ -64,7 +75,9 @@ export const performSequenceSteps = (
     }
 
     if (step.action === AudioActions.stop) {
-      const referenceAsset = assets.find(({ id }) => id === step.ref);
+      const referenceAsset = assetsAlreadyLoaded.find(
+        ({ id }) => id === step.ref
+      );
 
       if (!referenceAsset) {
         throw new Error(`Asset for ref: ${step.ref} not found`);
@@ -76,7 +89,9 @@ export const performSequenceSteps = (
     }
 
     if (step.action === AudioActions.resume) {
-      const referenceAsset = assets.find(({ id }) => id === step.ref);
+      const referenceAsset = assetsAlreadyLoaded.find(
+        ({ id }) => id === step.ref
+      );
 
       if (!referenceAsset) {
         throw new Error(`Asset for ref: ${step.ref} not found`);

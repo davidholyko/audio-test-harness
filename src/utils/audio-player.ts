@@ -106,7 +106,7 @@ export class AudioPlayer {
         log: {
           name: testingProperties?.name,
           ref: testingProperties?.id,
-          timestamp: howl.seek() || 0,
+          timestamp: testingProperties?.delay,
           event: AudioEvents.playing,
         },
       });
@@ -141,7 +141,7 @@ export class AudioPlayer {
         log: {
           name: testingProperties?.name,
           ref: testingProperties?.id,
-          timestamp: howl.seek() || 0,
+          timestamp: (testingProperties?.delay || 0) + howl.seek() || 0,
           event: AudioEvents.ended,
         },
       });

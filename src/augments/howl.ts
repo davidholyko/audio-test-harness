@@ -7,6 +7,7 @@ declare module 'howler' {
       name: string;
       duration: TimeInMilleseconds;
       src: AudioSource;
+      delay: TimeInMilleseconds;
     };
   }
 }
