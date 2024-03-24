@@ -20,8 +20,14 @@ npm run dev
 
 ## Tests
 
+We have different levels of test cases based on their complexity.
+
 ```shell
+# run all tests
 npm run test
+
+# run a single test
+npm run test test/__integration_tests__/01-level-02-single-audio-plays-to-end.test.ts
 ```
 
 ### Test Cases [Level 1]

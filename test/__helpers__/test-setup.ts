@@ -76,21 +76,7 @@ export const performSequenceSteps = (
     if (action === AudioActions.play) {
       setTimeout(() => {
         audioPlayer.injectionForTesting(referenceAsset.src, (howl) => {
-          // delayOffset represents the time in between initial loading and playing
-          // for example:
-          //   load at   0000
-          //   play at   3000
-          //                  the assertions should say that playing happened at 3000
           howl.updatePlayOffset(timestamp);
-
-          // pauseOffset represents the time in between the last pause and play
-          // for example:
-          //   audio is 5 seconds
-          //   play at   0000
-          //   pause at  2000
-          //   resume at 3000 // there are 3 seconds left
-          //   end at    6000
-          //             6000 comes from 5 second duration + 1 second pause duration
 
           // @ts-expect-error | About branded numbers
           howl.updatePauseOffset(timestamp - howl.seek());
@@ -114,6 +100,13 @@ export const performSequenceSteps = (
 
     if (action === AudioActions.resume) {
       setTimeout(() => {
+        audioPlayer.injectionForTesting(referenceAsset.src, (howl) => {
+          howl.updatePlayOffset(timestamp);
+
+          // @ts-expect-error | About branded numbers
+          howl.updatePauseOffset(timestamp - howl.seek());
+        });
+
         audioPlayer.resume(referenceAsset.src);
       }, timestamp);
     }

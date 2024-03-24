@@ -8,7 +8,7 @@ import {
 const raw = {
   assets: [
     {
-      id: 'aa1c555b-1c98-4ddb-81f7-62dc173cc20c',
+      id: '59e8edf6-4bc5-442b-90ca-52e189b98209',
       name: 'audio-1',
       src: 'https://audio-samples.github.io/samples/mp3/ted_val/sample-1.mp3',
       duration: 5000,
@@ -17,27 +17,27 @@ const raw = {
   sequence: [
     {
       id: '99adef51-6797-43f3-b38a-b4fe010b6703',
-      ref: 'aa1c555b-1c98-4ddb-81f7-62dc173cc20c',
+      ref: '59e8edf6-4bc5-442b-90ca-52e189b98209',
       timestamp: 0,
       action: 'play',
     },
   ],
   assertions: [
     {
-      id: 'ccc8ef34-66fe-49df-91b3-6026fb21f569',
-      ref: 'aa1c555b-1c98-4ddb-81f7-62dc173cc20c',
+      id: '4bebc442-9168-4778-a800-5b59232e88a5',
+      ref: '59e8edf6-4bc5-442b-90ca-52e189b98209',
       timestamp: 0,
       event: 'loaded',
     },
     {
-      id: '047cf99b-354b-4ab9-82b6-54e5708aa8f6',
-      ref: 'aa1c555b-1c98-4ddb-81f7-62dc173cc20c',
+      id: '8e634c62-ab14-499a-aeba-3a3c122ea0c0',
+      ref: '59e8edf6-4bc5-442b-90ca-52e189b98209',
       timestamp: 0,
       event: 'playing',
     },
     {
-      id: '3cf34e15-7ef0-4397-b7fb-e18d8b6fb01b',
-      ref: 'aa1c555b-1c98-4ddb-81f7-62dc173cc20c',
+      id: 'cd53bd01-6bc3-4eab-87e2-ce65884c23cf',
+      ref: '59e8edf6-4bc5-442b-90ca-52e189b98209',
       timestamp: 5000,
       event: 'ended',
     },
@@ -50,4 +50,6 @@ const conversion = [
   toAssertions(raw.assertions),
 ] as const;
 
-export const AUDIO_FIXTURE_01 = new AudioFixture(...conversion);
+const AUDIO_FIXTURE = new AudioFixture(...conversion);
+
+export default AUDIO_FIXTURE;

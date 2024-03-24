@@ -25,7 +25,37 @@ declare module 'howler' {
   }
 
   export interface Howl {
+    /**
+     * @summary
+     * delayOffset represents the time in between initial loading and playing
+     * ```shell
+     * # load at 0000
+     * # play at 3000
+     * #   the assertions should say playing at 3000
+     * ````
+     *
+     * @param {TimeInMilleseconds} value
+     * @returns {void}
+     */
     updatePlayOffset: (value: TimeInMilleseconds) => void;
+
+    /**
+     * @summary
+     * pauseOffset represents the time in between the last pause and play
+     * ```shell
+     * # audio is 5 seconds
+     *
+     * # play at    0000
+     * # pause at   2000
+     * # resume at  3000 # there are 3 seconds left
+     * # end at     6000
+     *
+     * # 6000 comes from 5 second duration + 1 second pause duration
+     * ```
+     *
+     * @param {TimeInMilleseconds} value
+     * @returns {void}
+     */
     updatePauseOffset: (value: TimeInMilleseconds) => void;
 
     seek(): (value?: number) => TimeInMilleseconds;

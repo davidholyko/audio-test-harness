@@ -80,4 +80,6 @@ const conversion = [
   toAssertions(raw.assertions),
 ] as const;
 
-export const AUDIO_FIXTURE_02 = new AudioFixture(...conversion);
+const AUDIO_FIXTURE = new AudioFixture(...conversion);
+
+export default AUDIO_FIXTURE;
