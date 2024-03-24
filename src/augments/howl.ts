@@ -58,7 +58,7 @@ declare module 'howler' {
      */
     updatePauseOffset: (value: TimeInMilleseconds) => void;
 
-    seek(): (value?: number) => TimeInMilleseconds;
+    seek(value?: number): TimeInMilleseconds;
 
     once(event: 'play', callback: TestCallback): void;
     once(event: 'pause', callback: TestCallback): void;

@@ -1,6 +1,6 @@
 import {
   AudioActions,
-  AudioEvents,
+  AudioEvent,
   AudioId,
   AudioSource,
   TimeInMilleseconds,
@@ -39,7 +39,7 @@ export type AudioAssertion = {
   id: Uuid;
   ref: AudioId;
   timestamp: TimeInMilleseconds;
-  event: keyof typeof AudioEvents;
+  event: AudioEvent;
 };
 
 export type RawAssertion = {

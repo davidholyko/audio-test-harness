@@ -5,7 +5,7 @@
  */
 export type AudioSource = string & { __brand: 'AudioSource' };
 
-export type OnLoadCompletedFn = () => void;
+export type OnEventChangeFn = (event: AudioEvent) => void;
 
 export type TimeInMilleseconds = number & { __brand: 'TimeInMilleseconds' };
 export type Uuid = string & { __brand: 'Uuid' };
@@ -27,3 +27,5 @@ export enum AudioEvents {
   stopped = 'stopped',
   ended = 'ended',
 }
+
+export type AudioEvent = keyof typeof AudioEvents;

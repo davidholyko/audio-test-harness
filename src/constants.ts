@@ -11,7 +11,7 @@ export const AUDIO_URLS = [
   },
   {
     id: 3,
-    name: 'Audio 4',
+    name: 'Audio 3',
     src: 'https://audio-samples.github.io/samples/mp3/blizzard_tts_primed/prime/sample-2.mp3'.toSrc(),
   },
   {

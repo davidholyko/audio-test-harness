@@ -5,6 +5,7 @@ import {
   TimeInMilleseconds,
   Uuid,
   AudioId,
+  AudioEvent,
 } from '../../src/types/audio.types';
 import {
   AudioAssertion,
@@ -79,6 +80,6 @@ export const toAssertions = (raws: Array<RawAssertion>): AudioAssertion[] =>
       id: raw.id as Uuid,
       ref: raw.ref as AudioId,
       timestamp: raw.timestamp as TimeInMilleseconds,
-      event: raw.event as keyof typeof AudioEvents,
+      event: raw.event as AudioEvent,
     };
   });

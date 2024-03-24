@@ -3,18 +3,48 @@ import { eventDispatcher } from './event-dispatcher';
 import {
   AudioEvents,
   AudioSource,
-  OnLoadCompletedFn,
+  OnEventChangeFn,
 } from '../types/audio.types';
 
 type LoadOptions = {
-  onLoadCompleted?: OnLoadCompletedFn;
   testProps?: HowlOptions['testProps'];
+  callbacks?: {
+    onEventChange?: OnEventChangeFn;
+  };
 };
 
-type InternalAudio = {
+type InternalAudio = LoadOptions & {
   howl: Howl;
-  testProps?: HowlOptions['testProps'];
+  status: AudioEvents[];
 };
+
+type AudioPlayerReturnType = {
+  play: () => void;
+  pause: () => void;
+  stop: () => void;
+  resume: () => void;
+  status: {
+    isResumable: boolean;
+    isStoppable: boolean;
+    isPausable: boolean;
+    isPlayable: boolean;
+  };
+};
+
+const DEFAULT_AUDIO: AudioPlayerReturnType = {
+  play: noop,
+  pause: noop,
+  stop: noop,
+  resume: noop,
+  status: {
+    isResumable: false,
+    isStoppable: false,
+    isPausable: false,
+    isPlayable: false,
+  },
+};
+
+function noop() {}
 
 export class AudioPlayer {
   #audios: Record<AudioSource, InternalAudio> = {};
@@ -23,17 +53,69 @@ export class AudioPlayer {
     return this.#audios;
   }
 
-  getAudio = (src: AudioSource) => {
+  getHistory(src: AudioSource) {
+    const record = this.audios[src];
+
+    if (!record) {
+      return [];
+    }
+
+    return [...this.audios[src].status];
+  }
+
+  getStatus(src: AudioSource) {
+    const record = this.audios[src];
+
+    if (!record) {
+      return undefined;
+    }
+
+    const { status } = record;
+    return status[status.length - 1];
+  }
+
+  setStatus(src: AudioSource, status: AudioEvents) {
+    this.audios[src]?.status.push(status);
+  }
+
+  getAudio = (src: AudioSource): AudioPlayerReturnType => {
+    const record = this.#audios[src];
+
+    if (!record) {
+      return DEFAULT_AUDIO;
+    }
+
+    const { howl } = record;
+
     const play = () => this.play(src);
     const pause = () => this.pause(src);
     const stop = () => this.stop(src);
     const resume = () => this.resume(src);
+
+    const isResumable = this.getStatus(src) === AudioEvents.paused;
+    const isStoppable = this.getStatus(src) === AudioEvents.playing;
+    const isPausable = this.getStatus(src) === AudioEvents.playing;
+
+    /**
+     * Audio is playable if
+     *   * it has not started or ended
+     *   * it is not currently playing
+     */
+    const isPlayable = howl.playing()
+      ? false
+      : this.getStatus(src) === AudioEvents.ended || howl.seek() === 0;
 
     return {
       play,
       pause,
       stop,
       resume,
+      status: {
+        isResumable,
+        isStoppable,
+        isPausable,
+        isPlayable,
+      },
     };
   };
 
@@ -53,7 +135,7 @@ export class AudioPlayer {
   };
 
   load(src: AudioSource, options: LoadOptions) {
-    const { onLoadCompleted, testProps } = options;
+    const { testProps, callbacks } = options;
 
     const howl = new Howl({
       src: [src],
@@ -70,12 +152,19 @@ export class AudioPlayer {
           event: AudioEvents.loaded,
         },
       });
-      onLoadCompleted?.();
+
+      callbacks?.onEventChange?.(AudioEvents.loaded);
+      this.setStatus(src, AudioEvents.loaded);
     });
 
     howl.load();
 
-    this.#audios[src] = { howl, testProps };
+    this.#audios[src] = {
+      howl,
+      testProps,
+      callbacks,
+      status: [],
+    };
   }
 
   unload(src: AudioSource) {
@@ -89,7 +178,7 @@ export class AudioPlayer {
    * @param {AudioSource} src
    */
   play(src: AudioSource) {
-    const { howl, testProps } = this.audios[src];
+    const { howl, testProps, callbacks } = this.audios[src];
 
     if (!howl) {
       throw new Error(`Audio ${src} must be loaded manually`);
@@ -102,6 +191,9 @@ export class AudioPlayer {
     howl.off('end');
 
     howl.on('play', (payload) => {
+      this.setStatus(src, AudioEvents.playing);
+      callbacks?.onEventChange?.(AudioEvents.playing);
+
       eventDispatcher.emit(AudioEvents.playing, {
         log: {
           name: testProps?.name,
@@ -114,7 +206,10 @@ export class AudioPlayer {
       this.#update(src, 0);
     });
 
-    howl.once('pause', () => {
+    howl.on('pause', () => {
+      this.setStatus(src, AudioEvents.paused);
+      callbacks?.onEventChange?.(AudioEvents.paused);
+
       eventDispatcher.emit(AudioEvents.paused, {
         log: {
           name: testProps?.name,
@@ -125,7 +220,10 @@ export class AudioPlayer {
       });
     });
 
-    howl.once('stop', () => {
+    howl.on('stop', () => {
+      this.setStatus(src, AudioEvents.stopped);
+      callbacks?.onEventChange?.(AudioEvents.stopped);
+
       eventDispatcher.emit(AudioEvents.stopped, {
         log: {
           name: testProps?.name,
@@ -136,13 +234,15 @@ export class AudioPlayer {
       });
     });
 
-    howl.once('end', (payload) => {
+    howl.on('end', (payload) => {
+      this.setStatus(src, AudioEvents.ended);
+      callbacks?.onEventChange?.(AudioEvents.ended);
+
       eventDispatcher.emit(AudioEvents.ended, {
         log: {
           name: testProps?.name,
           ref: testProps?.id,
-          // @ts-expect-error | About branded numbers
-          timestamp: payload?.pauseOffset + howl.seek() || 0,
+          timestamp: payload?.pauseOffset + howl.seek(),
           event: AudioEvents.ended,
         },
       });
