@@ -52,3 +52,10 @@ _These test cases check that the Audio Test Harness can handle more complicated 
 _These test cases check that the Audio Test Harness can handle multiple streams_
 
 1. Check that multiple audios can play, pause, stop, end together
+
+### Test Cases [Level 4]
+
+_These test cases check that the Audio Test Harness can business rules applied to audio_
+
+1. Check that maximum of two audios can be played at once
+1. Check that audio can stop another audio

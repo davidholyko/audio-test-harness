@@ -21,18 +21,15 @@ export const useAudioControls = (src: AudioSource) => {
     };
   }, []);
 
-  const { play, pause, stop, resume } = useMemo(
-    () => audioPlayer.getAudio(src),
-    [isLoaded]
-  );
+  const controls = useMemo(() => audioPlayer.getAudioControls(src), [isLoaded]);
 
-  const status = useMemo(() => audioPlayer.getAudio(src).status, [eventStatus]);
+  const status = useMemo(
+    () => audioPlayer.getAudioControlState(src),
+    [eventStatus]
+  );
 
   return {
     ...status,
-    play,
-    pause,
-    stop,
-    resume,
+    ...controls,
   };
 };
