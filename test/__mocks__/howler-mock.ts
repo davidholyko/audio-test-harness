@@ -85,7 +85,7 @@ export class HowlerMock {
   stop() {
     clearInterval(this.#timerId);
 
-    this.#events?.pause.forEach((callBack) => {
+    this.#events?.stop.forEach((callBack) => {
       callBack?.(this.#testProps);
     });
 

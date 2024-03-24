@@ -68,7 +68,7 @@ export const toSequenceSteps = (raws: Array<RawStep>): AudioStep[] =>
 export const toAssertions = (raws: Array<RawAssertion>): AudioAssertion[] =>
   raws.map((raw) => {
     if (!(raw.event in AudioEvents)) {
-      throw new Error(`id ${raw.id} has invalid event ${raw.event}`);
+      throw new Error(`id ${raw.id} has invalid event '${raw.event}'`);
     }
 
     if (Object.keys(raw).toString() !== RawEventKeys) {

@@ -109,7 +109,7 @@ export const performSequenceSteps = (
     if (action === AudioActions.stop) {
       setTimeout(() => {
         audioPlayer.stop(referenceAsset.src);
-      }, timestamp);
+      }, timestamp + INTERVAL);
     }
 
     if (action === AudioActions.resume) {
