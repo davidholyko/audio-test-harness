@@ -8,12 +8,12 @@ import {
 
 type LoadOptions = {
   onLoadCompleted?: OnLoadCompletedFn;
-  testingProperties?: HowlOptions['testingProperties'];
+  testProps?: HowlOptions['testProps'];
 };
 
 type InternalAudio = {
   howl: Howl;
-  testingProperties?: HowlOptions['testingProperties'];
+  testProps?: HowlOptions['testProps'];
 };
 
 export class AudioPlayer {
@@ -53,20 +53,20 @@ export class AudioPlayer {
   };
 
   load(src: AudioSource, options: LoadOptions) {
-    const { onLoadCompleted, testingProperties } = options;
+    const { onLoadCompleted, testProps } = options;
 
     const howl = new Howl({
       src: [src],
       autoplay: false,
-      testingProperties,
+      testProps,
     });
 
     howl.on('load', () => {
       eventDispatcher.emit(AudioEvents.loaded, {
         log: {
-          name: testingProperties?.name,
-          ref: testingProperties?.id,
-          timestamp: howl.seek() || 0,
+          name: testProps?.name,
+          ref: testProps?.id,
+          timestamp: 0,
           event: AudioEvents.loaded,
         },
       });
@@ -75,7 +75,7 @@ export class AudioPlayer {
 
     howl.load();
 
-    this.#audios[src] = { howl, testingProperties };
+    this.#audios[src] = { howl, testProps };
   }
 
   unload(src: AudioSource) {
@@ -89,7 +89,7 @@ export class AudioPlayer {
    * @param {AudioSource} src
    */
   play(src: AudioSource) {
-    const { howl, testingProperties } = this.audios[src];
+    const { howl, testProps } = this.audios[src];
 
     if (!howl) {
       throw new Error(`Audio ${src} must be loaded manually`);
@@ -101,12 +101,12 @@ export class AudioPlayer {
     howl.off('stop');
     howl.off('end');
 
-    howl.on('play', () => {
+    howl.on('play', (payload) => {
       eventDispatcher.emit(AudioEvents.playing, {
         log: {
-          name: testingProperties?.name,
-          ref: testingProperties?.id,
-          timestamp: testingProperties?.delay,
+          name: testProps?.name,
+          ref: testProps?.id,
+          timestamp: payload?.playOffset,
           event: AudioEvents.playing,
         },
       });
@@ -117,8 +117,8 @@ export class AudioPlayer {
     howl.once('pause', () => {
       eventDispatcher.emit(AudioEvents.paused, {
         log: {
-          name: testingProperties?.name,
-          ref: testingProperties?.id,
+          name: testProps?.name,
+          ref: testProps?.id,
           timestamp: howl.seek() || 0,
           event: AudioEvents.paused,
         },
@@ -128,20 +128,21 @@ export class AudioPlayer {
     howl.once('stop', () => {
       eventDispatcher.emit(AudioEvents.stopped, {
         log: {
-          name: testingProperties?.name,
-          ref: testingProperties?.id,
+          name: testProps?.name,
+          ref: testProps?.id,
           timestamp: howl.seek() || 0,
           event: AudioEvents.stopped,
         },
       });
     });
 
-    howl.once('end', () => {
+    howl.once('end', (payload) => {
       eventDispatcher.emit(AudioEvents.ended, {
         log: {
-          name: testingProperties?.name,
-          ref: testingProperties?.id,
-          timestamp: (testingProperties?.delay || 0) + howl.seek() || 0,
+          name: testProps?.name,
+          ref: testProps?.id,
+          // @ts-expect-error | About branded numbers
+          timestamp: payload?.pauseOffset + howl.seek() || 0,
           event: AudioEvents.ended,
         },
       });
@@ -185,8 +186,16 @@ export class AudioPlayer {
     howl.play();
   }
 
-  getAudios() {
-    return this.#audios;
+  /**
+   * Mutate an instance of HowlerMock objects properties
+   *
+   * @param {AudioSource} src
+   * @param {Function} callback
+   */
+  injectionForTesting(src: AudioSource, callback: (howl: Howl) => void) {
+    const { howl } = this.#audios[src];
+
+    callback(howl);
   }
 }
 

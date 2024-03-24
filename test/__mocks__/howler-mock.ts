@@ -1,8 +1,17 @@
-import { AudioActions, TimeInMilleseconds } from '../../src/types/audio.types';
+import {
+  AudioActions,
+  AudioId,
+  AudioSource,
+  TimeInMilleseconds,
+} from '../../src/types/audio.types';
 
-type EventCallback = () => void;
+import type { TestProperties } from 'howler';
+
+type EventCallback = (testProps: TestProperties) => void;
 
 type EventMap = Record<keyof typeof AudioActions, EventCallback[]>;
+
+const INTERVAL = 50;
 
 export class HowlerMock {
   #internalSeek: TimeInMilleseconds;
@@ -20,18 +29,20 @@ export class HowlerMock {
 
   #playing: boolean;
 
-  #testingProperties = {
-    duration: 0,
-    id: 'placeholder-uuid',
+  #testProps: TestProperties = {
+    pauseOffset: 0 as TimeInMilleseconds,
+    playOffset: 0 as TimeInMilleseconds,
+    duration: 0 as TimeInMilleseconds,
+    id: 'placeholder-uuid' as AudioId,
     name: 'Placeholder Name',
-    src: 'placeholder.mp4',
+    src: 'placeholder.mp4' as AudioSource,
   };
 
-  constructor({ testingProperties }) {
+  constructor({ testProps }) {
     this.#internalSeek = 0 as TimeInMilleseconds;
-    this.#testingProperties = {
-      ...this.#testingProperties,
-      ...testingProperties,
+    this.#testProps = {
+      ...this.#testProps,
+      ...testProps,
     };
   }
 
@@ -52,10 +63,10 @@ export class HowlerMock {
   }
 
   play() {
-    this.#timerId = setInterval(this.#update, 50);
+    this.#timerId = setInterval(this.#update, INTERVAL);
 
     this.#events?.play.forEach((callBack) => {
-      callBack?.();
+      callBack?.(this.#testProps);
     });
 
     this.#playing = true;
@@ -65,7 +76,7 @@ export class HowlerMock {
     clearInterval(this.#timerId);
 
     this.#events?.pause.forEach((callBack) => {
-      callBack?.();
+      callBack?.(this.#testProps);
     });
 
     this.#playing = false;
@@ -75,7 +86,7 @@ export class HowlerMock {
     clearInterval(this.#timerId);
 
     this.#events?.pause.forEach((callBack) => {
-      callBack?.();
+      callBack?.(this.#testProps);
     });
 
     this.#playing = false;
@@ -87,16 +98,15 @@ export class HowlerMock {
 
   load() {
     this.#events?.load.forEach((callBack) => {
-      callBack?.();
+      callBack?.(this.#testProps);
     });
   }
 
   #update = () => {
-    const { duration } = this.#testingProperties;
-
+    const { duration } = this.#testProps;
     const position = this.#internalSeek || 0;
 
-    this.#internalSeek = (position + 50) as TimeInMilleseconds;
+    this.#internalSeek = (position + INTERVAL) as TimeInMilleseconds;
 
     if (this.#internalSeek >= duration) {
       clearInterval(this.#timerId);
@@ -106,7 +116,7 @@ export class HowlerMock {
 
   #end() {
     this.#events?.end.forEach((callBack) => {
-      callBack?.();
+      callBack?.(this.#testProps);
     });
 
     this.#playing = false;
@@ -118,5 +128,13 @@ export class HowlerMock {
     }
 
     this.#internalSeek = seek;
+  }
+
+  updatePauseOffset(value: TimeInMilleseconds) {
+    this.#testProps.pauseOffset = value;
+  }
+
+  updatePlayOffset(value: TimeInMilleseconds) {
+    this.#testProps.playOffset = value;
   }
 }

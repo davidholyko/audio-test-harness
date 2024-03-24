@@ -1,9 +1,17 @@
 import { vi } from 'vitest';
-import { AudioActions, AudioEvents } from '../../src/types/audio.types';
+import {
+  AudioActions,
+  AudioEvents,
+  TimeInMilleseconds,
+} from '../../src/types/audio.types';
 import { AuditLogEntry } from '../../src/types/event-dispatcher.types';
 import { audioPlayer } from '../../src/utils/audio-player';
 import { AudioAsset, AudioStep } from '../__structures__/audio-fixture.types';
 import { eventDispatcher } from '../../src/utils/event-dispatcher';
+
+import '../../src/augments';
+
+export const INTERVAL = 50;
 
 export const startCleanSlate = () => {
   globalThis.requestAnimationFrame = () => 0;
@@ -29,15 +37,17 @@ export const setupAuditTrail = (logFile: AuditLogEntry[]) => {
 };
 
 export const loadAssets = (
-  sequenceToPlay: AudioStep[],
+  _sequenceToPlay: AudioStep[],
   assetsToLoad: AudioAsset[]
 ) => {
   assetsToLoad.forEach((asset) => {
-    const testingProperties = {
+    const testProps = {
       ...asset,
-      delay: sequenceToPlay.find((step) => step.ref === asset.id)?.timestamp,
+      playOffset: 0 as TimeInMilleseconds,
+      pauseOffset: 0 as TimeInMilleseconds,
     };
-    audioPlayer.load(asset.src, { testingProperties });
+
+    audioPlayer.load(asset.src, { testProps });
   });
 };
 
@@ -46,60 +56,57 @@ export const performSequenceSteps = (
   assetsAlreadyLoaded: AudioAsset[]
 ) => {
   sequenceToPlay.forEach((step) => {
-    if (step.action === AudioActions.play) {
-      const referenceAsset = assetsAlreadyLoaded.find(
-        ({ id }) => id === step.ref
-      );
+    const { id, timestamp, ref, action } = step;
 
-      if (!referenceAsset) {
-        throw new Error(`Asset for ref: ${step.ref} not found`);
-      }
+    const referenceAsset = assetsAlreadyLoaded.find(({ id }) => id === ref);
 
-      setTimeout(() => {
-        audioPlayer.play(referenceAsset.src);
-      }, step.timestamp);
+    if (!referenceAsset) {
+      throw new Error(`Step id ${id} failed. Asset for ref: ${ref} not found`);
     }
 
-    if (step.action === AudioActions.pause) {
-      const referenceAsset = assetsAlreadyLoaded.find(
-        ({ id }) => id === step.ref
-      );
+    if (action === AudioActions.play) {
+      setTimeout(() => {
+        audioPlayer.injectionForTesting(referenceAsset.src, (howl) => {
+          // delayOffset represents the time in between initial loading and playing
+          // for example:
+          //   load at   0000
+          //   play at   3000
+          //                  the assertions should say that playing happened at 3000
+          howl.updatePlayOffset(timestamp);
 
-      if (!referenceAsset) {
-        throw new Error(`Asset for ref: ${step.ref} not found`);
-      }
+          // pauseOffset represents the time in between the last pause and play
+          // for example:
+          //   audio is 5 seconds
+          //   play at   0000
+          //   pause at  2000
+          //   resume at 3000 // there are 3 seconds left
+          //   end at    6000
+          //             6000 comes from 5 second duration + 1 second pause duration
 
+          // @ts-expect-error | About branded numbers
+          howl.updatePauseOffset(timestamp - howl.seek());
+        });
+
+        audioPlayer.play(referenceAsset.src);
+      }, timestamp);
+    }
+
+    if (action === AudioActions.pause) {
       setTimeout(() => {
         audioPlayer.pause(referenceAsset.src);
-      }, step.timestamp);
+      }, timestamp + INTERVAL);
     }
 
-    if (step.action === AudioActions.stop) {
-      const referenceAsset = assetsAlreadyLoaded.find(
-        ({ id }) => id === step.ref
-      );
-
-      if (!referenceAsset) {
-        throw new Error(`Asset for ref: ${step.ref} not found`);
-      }
-
+    if (action === AudioActions.stop) {
       setTimeout(() => {
         audioPlayer.stop(referenceAsset.src);
-      }, step.timestamp);
+      }, timestamp);
     }
 
-    if (step.action === AudioActions.resume) {
-      const referenceAsset = assetsAlreadyLoaded.find(
-        ({ id }) => id === step.ref
-      );
-
-      if (!referenceAsset) {
-        throw new Error(`Asset for ref: ${step.ref} not found`);
-      }
-
+    if (action === AudioActions.resume) {
       setTimeout(() => {
         audioPlayer.resume(referenceAsset.src);
-      }, step.timestamp);
+      }, timestamp);
     }
   });
 };
