@@ -18,8 +18,31 @@ npm run build
 npm run dev
 ```
 
-## Test [In Progress]
+## Tests
 
 ```shell
 npm run test
 ```
+
+### Test Cases [Level 1]
+
+_These test cases check very basic functionality against Howler + HowlerMock_
+
+1. Check that Audio can load
+1. Check that Audio can play until natural end
+1. Check that Audio can resume after pause
+1. Check that Audio can pause
+1. Check that Audio can stop
+
+### Test Cases [Level 2]
+
+_These test cases check that the Audio Test Harness can handle more complicated logic around sequences_
+
+1. Check audio can play after a small delay after loading
+1. Check audio can resume after a small delay after pausing
+
+### Test Cases [Level 3]
+
+_These test cases check that the Audio Test Harness can handle multiple streams_
+
+1. Check that multiple audios can play, pause, stop, end together
