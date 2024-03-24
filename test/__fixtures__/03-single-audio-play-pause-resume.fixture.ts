@@ -8,7 +8,7 @@ import {
 const raw = {
   assets: [
     {
-      id: 'aa1c555b-1c98-4ddb-81f7-62dc173cc20c',
+      id: '79494710-d213-46a5-815f-7a92d88a6633',
       name: 'audio-1',
       src: 'https://audio-samples.github.io/samples/mp3/ted_val/sample-1.mp3',
       duration: 5000,
@@ -16,52 +16,52 @@ const raw = {
   ],
   sequence: [
     {
-      id: '99adef51-6797-43f3-b38a-b4fe010b6703',
-      ref: 'aa1c555b-1c98-4ddb-81f7-62dc173cc20c',
+      id: '2370f0cd-80dd-4891-9d39-bc6f2ceadc48',
+      ref: '79494710-d213-46a5-815f-7a92d88a6633',
       timestamp: 0,
       action: 'play',
     },
     {
-      id: '26443950-d6d4-4807-b97b-597e4fe61ec8',
-      ref: 'aa1c555b-1c98-4ddb-81f7-62dc173cc20c',
+      id: '2370f0cd-80dd-4891-9d39-bc6f2ceadc48',
+      ref: '79494710-d213-46a5-815f-7a92d88a6633',
       timestamp: 2000,
       action: 'pause',
     },
     {
-      id: '8de0fb15-9cab-4ff1-b673-e2cb114d4aca',
-      ref: 'aa1c555b-1c98-4ddb-81f7-62dc173cc20c',
+      id: 'faa98077-05d5-4fc0-9729-04374cae0ab3',
+      ref: '79494710-d213-46a5-815f-7a92d88a6633',
       timestamp: 3000,
       action: 'play',
     },
   ],
   assertions: [
     {
-      id: 'ccc8ef34-66fe-49df-91b3-6026fb21f569',
-      ref: 'aa1c555b-1c98-4ddb-81f7-62dc173cc20c',
+      id: '57207c2e-ed95-4051-a52c-64a74f4403ad',
+      ref: '79494710-d213-46a5-815f-7a92d88a6633',
       timestamp: 0,
       event: 'loaded',
     },
     {
-      id: '047cf99b-354b-4ab9-82b6-54e5708aa8f6',
-      ref: 'aa1c555b-1c98-4ddb-81f7-62dc173cc20c',
+      id: 'ee031514-6b6b-4311-823b-1c46bf7f46b4',
+      ref: '79494710-d213-46a5-815f-7a92d88a6633',
       timestamp: 0,
       event: 'playing',
     },
     {
-      id: 'b3322ea6-21d0-48cd-b34d-4c67b67005ea',
-      ref: 'aa1c555b-1c98-4ddb-81f7-62dc173cc20c',
+      id: 'efe9423e-7e5b-4ed8-99c1-8a484d489d7d',
+      ref: '79494710-d213-46a5-815f-7a92d88a6633',
       timestamp: 2000,
       event: 'paused',
     },
     {
-      id: '9636a36f-f00a-4bae-aef8-469c34a345a1',
-      ref: 'aa1c555b-1c98-4ddb-81f7-62dc173cc20c',
+      id: '7300f5ac-7790-41db-86a3-c2f3456ac4bb',
+      ref: '79494710-d213-46a5-815f-7a92d88a6633',
       timestamp: 3000,
       event: 'playing',
     },
     {
-      id: '3cf34e15-7ef0-4397-b7fb-e18d8b6fb01b',
-      ref: 'aa1c555b-1c98-4ddb-81f7-62dc173cc20c',
+      id: '6b164251-c19a-479d-a05c-4a717981e555',
+      ref: '79494710-d213-46a5-815f-7a92d88a6633',
       timestamp: 6000,
       event: 'ended',
     },
