@@ -1,26 +1,25 @@
 import { describe, expect, test, vi, beforeAll } from 'vitest';
 
 import { HowlerMock } from '../__mocks__/howler-mock';
-import { AUDIO_FIXTURE_02 } from '../__fixtures__/02-multiple-audio-plays.fixture';
+import { AUDIO_FIXTURE_01 } from '../__fixtures__/01-audio-plays-to-end.fixture';
 import {
-  createLog,
   loadAssets,
-  objWithout,
   performSequenceSteps,
   setupAuditTrail,
   startCleanSlate,
 } from '../__helpers__/test-setup';
+import { AuditLogger } from '../__helpers__/audit-logger';
 
-const { assertions, assets, sequence } = AUDIO_FIXTURE_02;
+const { assertions, assets, sequence } = AUDIO_FIXTURE_01;
 
 vi.mock('howler', () => ({ Howl: HowlerMock }));
 
-describe('Multiple Audios Play to End', () => {
-  const logs = createLog();
+describe('Audio Plays to End', () => {
+  let auditLogger: AuditLogger;
 
   beforeAll(() => {
     startCleanSlate();
-    setupAuditTrail(logs);
+    auditLogger = setupAuditTrail(assertions);
     loadAssets(sequence, assets);
     performSequenceSteps(sequence, assets);
 
@@ -28,9 +27,9 @@ describe('Multiple Audios Play to End', () => {
   });
 
   test('Entire End to End', () => {
-    const expected = assertions.map((assertion) => objWithout(assertion, 'id'));
-    const result = logs.map((log) => objWithout(log, 'name'));
+    const expected = auditLogger.expected;
+    const results = auditLogger.results;
 
-    expect(result).toEqual(expected);
+    expect(results).toEqual(expected);
   });
 });

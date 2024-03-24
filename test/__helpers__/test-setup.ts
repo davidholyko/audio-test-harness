@@ -6,10 +6,15 @@ import {
 } from '../../src/types/audio.types';
 import { AuditLogEntry } from '../../src/types/event-dispatcher.types';
 import { audioPlayer } from '../../src/utils/audio-player';
-import { AudioAsset, AudioStep } from '../__structures__/audio-fixture.types';
+import {
+  AudioAssertion,
+  AudioAsset,
+  AudioStep,
+} from '../__structures__/audio-fixture.types';
 import { eventDispatcher } from '../../src/utils/event-dispatcher';
 
 import '../../src/augments';
+import { AuditLogger } from './audit-logger';
 
 export const INTERVAL = 50;
 
@@ -24,9 +29,11 @@ export const startCleanSlate = () => {
   eventDispatcher.removeAllListeners();
 };
 
-export const setupAuditTrail = (logFile: AuditLogEntry[]) => {
+export const setupAuditTrail = (assertions: AudioAssertion[]) => {
+  const logger = new AuditLogger(assertions);
+
   const addToLog = (data: { log: AuditLogEntry }) => {
-    logFile.push(data.log);
+    logger.appendAuditLogEntry(data.log);
   };
 
   eventDispatcher.on(AudioEvents.loaded, addToLog);
@@ -34,6 +41,8 @@ export const setupAuditTrail = (logFile: AuditLogEntry[]) => {
   eventDispatcher.on(AudioEvents.stopped, addToLog);
   eventDispatcher.on(AudioEvents.paused, addToLog);
   eventDispatcher.on(AudioEvents.ended, addToLog);
+
+  return logger;
 };
 
 export const loadAssets = (
