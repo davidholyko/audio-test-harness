@@ -120,17 +120,21 @@ export const performSequenceSteps = (
   });
 };
 
-export function objWithout<T extends object, K extends keyof T>(
-  obj: T,
-  propToRemove: K
-): Omit<T, K> {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { [propToRemove]: _propValue, ...rest } = obj;
-  return rest as Omit<T, K>;
-}
+export function fullSetup({
+  assets,
+  sequence,
+  assertions,
+}: {
+  assets: AudioAsset[];
+  sequence: AudioStep[];
+  assertions: AudioAssertion[];
+}) {
+  startCleanSlate();
+  const auditLogger = setupAuditTrail(assertions);
+  loadAssets(sequence, assets);
+  performSequenceSteps(sequence, assets);
 
-export function createLog() {
-  const logs: AuditLogEntry[] = [];
+  vi.runAllTimers();
 
-  return logs;
+  return auditLogger;
 }
