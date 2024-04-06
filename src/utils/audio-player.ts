@@ -31,21 +31,6 @@ export class AudioPlayer {
     return [...this.audios[src].status];
   }
 
-  getStatus(src: AudioSource) {
-    const record = this.audios[src];
-
-    if (!record) {
-      return AudioEvents.not_loaded;
-    }
-
-    const { status } = record;
-    return status[status.length - 1];
-  }
-
-  setStatus(src: AudioSource, status: AudioEvents) {
-    this.audios[src]?.status.push(status);
-  }
-
   #update = (src: AudioSource, updaterId: number) => {
     const { howl } = this.audios[src];
 
@@ -82,7 +67,6 @@ export class AudioPlayer {
       });
 
       callbacks?.onEventChange?.(AudioEvents.loaded);
-      this.setStatus(src, AudioEvents.loaded);
     });
 
     howl.load();
@@ -119,7 +103,6 @@ export class AudioPlayer {
     howl.off('end');
 
     howl.on('play', (payload) => {
-      this.setStatus(src, AudioEvents.playing);
       callbacks?.onEventChange?.(AudioEvents.playing);
 
       eventDispatcher.emit(AudioEvents.playing, {
@@ -135,7 +118,6 @@ export class AudioPlayer {
     });
 
     howl.on('pause', () => {
-      this.setStatus(src, AudioEvents.paused);
       callbacks?.onEventChange?.(AudioEvents.paused);
 
       eventDispatcher.emit(AudioEvents.paused, {
@@ -149,7 +131,6 @@ export class AudioPlayer {
     });
 
     howl.on('stop', () => {
-      this.setStatus(src, AudioEvents.stopped);
       callbacks?.onEventChange?.(AudioEvents.stopped);
 
       eventDispatcher.emit(AudioEvents.stopped, {
@@ -163,7 +144,6 @@ export class AudioPlayer {
     });
 
     howl.on('end', (payload) => {
-      this.setStatus(src, AudioEvents.ended);
       callbacks?.onEventChange?.(AudioEvents.ended);
 
       eventDispatcher.emit(AudioEvents.ended, {
