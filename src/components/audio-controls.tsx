@@ -1,17 +1,18 @@
 import { useAudioControls } from '../hooks/use-audio-controls';
-import { AudioSample } from '../constants';
+import { AudioSample } from '../types/audio.types';
 
 type AudioControlsProps = {
   sample: AudioSample;
 };
 
 export function AudioControls({ sample }: AudioControlsProps) {
-  const { src, name, speech_to_text } = sample;
+  const { src, name, speech_to_text, markers } = sample;
 
-  const controls = useAudioControls(src);
+  const controls = useAudioControls(src, markers);
 
   return (
     <div
+      id={name}
       style={{
         backgroundColor: 'lightblue',
         padding: '5px',
@@ -25,7 +26,14 @@ export function AudioControls({ sample }: AudioControlsProps) {
           {src}
         </a>
       </p>
-      <p className="italics">{speech_to_text}</p>
+      <p className="italics">
+        {speech_to_text.split(' ').map((word) => (
+          <span key={word}>
+            <span data-word={word}>{word}</span>
+            <span>&nbsp;</span>
+          </span>
+        ))}
+      </p>
       <button onClick={controls.play} disabled={!controls.isPlayable}>
         ▶️ Play
       </button>

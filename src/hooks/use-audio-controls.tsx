@@ -1,16 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AudioEvent, AudioEvents, AudioSource } from '../types/audio.types';
+import { AudioEvent, AudioEvents, AudioMarker, AudioSource } from '../types/audio.types';
 import { audioPlayer } from '../utils/audio-player';
 
 const { not_loaded, loaded, playing, paused, stopped, ended } = AudioEvents;
 
-export const useAudioControls = (src: AudioSource) => {
+export const useAudioControls = (src: AudioSource, markers?: AudioMarker[]) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [logs, setLogs] = useState<AudioEvent[]>([not_loaded]);
   const log = useMemo(() => [...logs].pop(), [logs])!;
 
   useEffect(() => {
     audioPlayer.load(src, {
+      markers,
       callbacks: {
         onEventChange: (status: AudioEvents) => {
           setLogs((prevStatus) => [...prevStatus, status]);

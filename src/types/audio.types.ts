@@ -32,3 +32,41 @@ export enum AudioEvents {
 }
 
 export type AudioEvent = keyof typeof AudioEvents;
+
+export enum MarkerActionNames {
+  highlight = 'highlight',
+  unhighlight = 'unhighlight',
+  bold_all = 'bold_all',
+  unbold_all = 'unbold_all',
+}
+
+export type MarkerActionName = keyof typeof MarkerActionNames;
+
+export interface MarkerActions {
+  highlight(selector: string): void;
+
+  unhighlight(selector: string): void;
+
+  bold_all(): void;
+
+  unbold_all(): void;
+}
+
+export type AudioMarkerId = string & { __brand: 'AudioMarkerId' };
+
+export type AudioMarker<T extends keyof MarkerActions = keyof MarkerActions> = {
+  id: AudioMarkerId;
+  action: {
+    name: T;
+    args: Parameters<MarkerActions[T]>;
+    timestamp: TimeInMilleseconds;
+  };
+};
+
+export type AudioSample = {
+  id: string;
+  name: string;
+  src: AudioSource;
+  speech_to_text: string;
+  markers?: AudioMarker[];
+};

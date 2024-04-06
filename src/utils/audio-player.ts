@@ -1,8 +1,16 @@
 import { Howl, HowlOptions } from 'howler';
 import { eventDispatcher } from './event-dispatcher';
-import { AudioEvents, AudioSource, OnEventChangeFn } from '../types/audio.types';
+import {
+  AudioEvents,
+  AudioMarker,
+  AudioSource,
+  OnEventChangeFn,
+  TimeInMilleseconds,
+} from '../types/audio.types';
+import { markerPlayer } from './marker-player';
 
 type LoadOptions = {
+  markers?: AudioMarker[];
   testProps?: HowlOptions['testProps'];
   callbacks?: {
     onEventChange?: OnEventChangeFn;
@@ -14,6 +22,10 @@ type InternalAudioRecord = LoadOptions & {
   status: AudioEvents[];
 };
 
+const getHowlTime = (howl: Howl) => (howl.seek() * 1000) as TimeInMilleseconds;
+
+const getHowlDuration = (howl: Howl) => (howl.duration() * 1000) as TimeInMilleseconds;
+
 export class AudioPlayer {
   #audios: Record<AudioSource, InternalAudioRecord> = {};
 
@@ -22,12 +34,14 @@ export class AudioPlayer {
   }
 
   #update = (src: AudioSource, updaterId: number) => {
-    const { howl } = this.audios[src];
+    const { howl, markers = [] } = this.audios[src];
 
     if (!howl.playing()) {
       cancelAnimationFrame(updaterId);
       return;
     }
+
+    markerPlayer.fireMarkers(markers, getHowlTime(howl));
 
     // eventDispatcher.emit('UPDATE', { src, seek: this.audios[src].seek() });
 
@@ -37,7 +51,7 @@ export class AudioPlayer {
   };
 
   load(src: AudioSource, options: LoadOptions) {
-    const { testProps, callbacks } = options;
+    const { testProps, callbacks, markers } = options;
 
     const howl = new Howl({
       src: [src],
@@ -57,6 +71,8 @@ export class AudioPlayer {
       });
 
       callbacks?.onEventChange?.(AudioEvents.loaded);
+
+      markerPlayer.addMarkers(markers);
     });
 
     howl.load();
@@ -66,6 +82,7 @@ export class AudioPlayer {
       testProps,
       callbacks,
       status: [],
+      markers,
     };
   }
 
@@ -80,7 +97,7 @@ export class AudioPlayer {
    * @param {AudioSource} src
    */
   play(src: AudioSource) {
-    const { howl, testProps, callbacks } = this.audios[src];
+    const { howl, testProps, callbacks, markers = [] } = this.audios[src];
 
     if (!howl) {
       throw new Error(`Audio ${src} must be Loaded manually`);
@@ -94,6 +111,10 @@ export class AudioPlayer {
 
     howl.on('play', (payload) => {
       callbacks?.onEventChange?.(AudioEvents.playing);
+
+      if (howl.seek() === 0) {
+        markerPlayer.resetMarkers(markers);
+      }
 
       eventDispatcher.emit(AudioEvents.playing, {
         log: {
@@ -131,6 +152,8 @@ export class AudioPlayer {
           event: AudioEvents.stopped,
         },
       });
+
+      markerPlayer.fireMarkers(markers, getHowlDuration(howl));
     });
 
     howl.on('end', (payload) => {
@@ -144,6 +167,8 @@ export class AudioPlayer {
           event: AudioEvents.ended,
         },
       });
+
+      markerPlayer.fireMarkers(markers, getHowlDuration(howl));
     });
 
     howl.seek(0);

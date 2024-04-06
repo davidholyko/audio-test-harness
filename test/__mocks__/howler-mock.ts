@@ -6,6 +6,8 @@ import {
   TimeInMilleseconds,
 } from '../../src/types/audio.types';
 
+import '../../src/augments';
+
 import type { TestProperties } from 'howler';
 
 type EventCallback = (testProps: TestProperties) => void;
@@ -123,12 +125,18 @@ export class HowlerMock {
     }
   };
 
-  seek(seek: TimeInMilleseconds) {
+  seek(seek: TimeInMilleseconds): TimeInMilleseconds {
     if (seek === undefined) {
       return this.#internalSeek;
     }
 
     this.#internalSeek = seek;
+
+    return this.#internalSeek;
+  }
+
+  duration(): TimeInMilleseconds {
+    return this.#testProps.duration;
   }
 
   updatePauseOffset(value: TimeInMilleseconds) {
