@@ -21,16 +21,6 @@ export class AudioPlayer {
     return this.#audios;
   }
 
-  getHistory(src: AudioSource) {
-    const record = this.audios[src];
-
-    if (!record) {
-      return [];
-    }
-
-    return [...this.audios[src].status];
-  }
-
   #update = (src: AudioSource, updaterId: number) => {
     const { howl } = this.audios[src];
 
