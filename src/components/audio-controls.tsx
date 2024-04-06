@@ -1,20 +1,22 @@
-import { AudioSource } from '../types/audio.types';
 import { useAudioControls } from '../hooks/use-audio-controls';
+import { AudioSample } from '../constants';
 
 type AudioControlsProps = {
-  src: AudioSource;
-  name: string;
+  sample: AudioSample;
 };
 
-export function AudioControls(props: AudioControlsProps) {
-  const { src, name } = props;
+export function AudioControls({ sample }: AudioControlsProps) {
+  const { src, name, speech_to_text } = sample;
 
   const controls = useAudioControls(src);
 
   return (
     <div>
       <p>{name}</p>
-      <p>{src}</p>
+      <a href={src} target="_blank">
+        {src}
+      </a>
+      <p>{speech_to_text}</p>
       <button onClick={controls.play} disabled={!controls.isPlayable}>
         ▶️ Play
       </button>

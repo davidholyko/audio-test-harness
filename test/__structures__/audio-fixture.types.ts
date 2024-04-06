@@ -1,5 +1,5 @@
 import {
-  AudioActions,
+  AudioAction,
   AudioEvent,
   AudioId,
   AudioSource,
@@ -25,7 +25,7 @@ export type AudioStep = {
   id: Uuid;
   ref: AudioId;
   timestamp: TimeInMilleseconds;
-  action: keyof typeof AudioActions;
+  action: AudioAction;
 };
 
 export type RawStep = {
