@@ -1,4 +1,5 @@
 import {
+  AudioAction,
   AudioActions,
   AudioId,
   AudioSource,
@@ -19,12 +20,12 @@ export class HowlerMock {
   #timerId: ReturnType<typeof setInterval>;
 
   #events: EventMap = {
-    load: [],
-    play: [],
-    pause: [],
-    stop: [],
-    resume: [],
-    end: [],
+    [AudioActions.load]: [],
+    [AudioActions.play]: [],
+    [AudioActions.pause]: [],
+    [AudioActions.stop]: [],
+    [AudioActions.resume]: [],
+    [AudioActions.end]: [],
   };
 
   #playing: boolean;
@@ -50,22 +51,22 @@ export class HowlerMock {
     return this.#playing;
   }
 
-  on(actionType: keyof typeof AudioActions, callBack: () => void) {
+  on(actionType: AudioAction, callBack: () => void) {
     this.#events[actionType].push(callBack);
   }
 
-  once(actionType: keyof typeof AudioActions, callBack: () => void) {
+  once(actionType: AudioAction, callBack: () => void) {
     this.#events[actionType].push(callBack);
   }
 
-  off(actionType: keyof typeof AudioActions) {
+  off(actionType: AudioAction) {
     this.#events[actionType] = [];
   }
 
   play() {
     this.#timerId = setInterval(this.#update, INTERVAL);
 
-    this.#events?.play.forEach((callBack) => {
+    this.#events?.[AudioActions.play].forEach((callBack) => {
       callBack?.(this.#testProps);
     });
 
@@ -75,7 +76,7 @@ export class HowlerMock {
   pause() {
     clearInterval(this.#timerId);
 
-    this.#events?.pause.forEach((callBack) => {
+    this.#events?.[AudioActions.pause].forEach((callBack) => {
       callBack?.(this.#testProps);
     });
 
@@ -85,7 +86,7 @@ export class HowlerMock {
   stop() {
     clearInterval(this.#timerId);
 
-    this.#events?.stop.forEach((callBack) => {
+    this.#events?.[AudioActions.stop].forEach((callBack) => {
       callBack?.(this.#testProps);
     });
 
@@ -97,9 +98,17 @@ export class HowlerMock {
   }
 
   load() {
-    this.#events?.load.forEach((callBack) => {
+    this.#events?.[AudioActions.load].forEach((callBack) => {
       callBack?.(this.#testProps);
     });
+  }
+
+  #end() {
+    this.#events?.[AudioActions.end].forEach((callBack) => {
+      callBack?.(this.#testProps);
+    });
+
+    this.#playing = false;
   }
 
   #update = () => {
@@ -113,14 +122,6 @@ export class HowlerMock {
       this.#end();
     }
   };
-
-  #end() {
-    this.#events?.end.forEach((callBack) => {
-      callBack?.(this.#testProps);
-    });
-
-    this.#playing = false;
-  }
 
   seek(seek: TimeInMilleseconds) {
     if (seek === undefined) {

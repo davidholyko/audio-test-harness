@@ -1,10 +1,6 @@
 import { Howl, HowlOptions } from 'howler';
 import { eventDispatcher } from './event-dispatcher';
-import {
-  AudioEvents,
-  AudioSource,
-  OnEventChangeFn,
-} from '../types/audio.types';
+import { AudioEvents, AudioSource, OnEventChangeFn } from '../types/audio.types';
 
 type LoadOptions = {
   testProps?: HowlOptions['testProps'];
@@ -16,27 +12,6 @@ type LoadOptions = {
 type InternalAudioRecord = LoadOptions & {
   howl: Howl;
   status: AudioEvents[];
-};
-
-type AudioControls = {
-  play: () => void;
-  pause: () => void;
-  stop: () => void;
-  resume: () => void;
-};
-
-type AudioControlState = {
-  isResumable: boolean;
-  isStoppable: boolean;
-  isPausable: boolean;
-  isPlayable: boolean;
-};
-
-const DEFAULT_CONTROL_STATE: AudioControlState = {
-  isResumable: false,
-  isStoppable: false,
-  isPausable: false,
-  isPlayable: false,
 };
 
 export class AudioPlayer {
@@ -60,7 +35,7 @@ export class AudioPlayer {
     const record = this.audios[src];
 
     if (!record) {
-      return undefined;
+      return AudioEvents.not_loaded;
     }
 
     const { status } = record;
@@ -70,50 +45,6 @@ export class AudioPlayer {
   setStatus(src: AudioSource, status: AudioEvents) {
     this.audios[src]?.status.push(status);
   }
-
-  getAudioControls = (src: AudioSource): AudioControls => {
-    const play = () => this.play(src);
-    const pause = () => this.pause(src);
-    const stop = () => this.stop(src);
-    const resume = () => this.resume(src);
-
-    return {
-      play,
-      pause,
-      stop,
-      resume,
-    };
-  };
-
-  getAudioControlState = (src: AudioSource): AudioControlState => {
-    const record = this.#audios[src];
-
-    if (!record) {
-      return DEFAULT_CONTROL_STATE;
-    }
-
-    const { howl } = record;
-
-    const isResumable = this.getStatus(src) === AudioEvents.paused;
-    const isStoppable = this.getStatus(src) === AudioEvents.playing;
-    const isPausable = this.getStatus(src) === AudioEvents.playing;
-
-    /**
-     * Audio is playable if
-     *   * it has not started or ended
-     *   * it is not currently playing
-     */
-    const isPlayable = howl.playing()
-      ? false
-      : this.getStatus(src) === AudioEvents.ended || howl.seek() === 0;
-
-    return {
-      isResumable,
-      isStoppable,
-      isPausable,
-      isPlayable,
-    };
-  };
 
   #update = (src: AudioSource, updaterId: number) => {
     const { howl } = this.audios[src];
@@ -135,9 +66,9 @@ export class AudioPlayer {
 
     const howl = new Howl({
       src: [src],
+      html5: true,
       preload: false,
       testProps,
-      html5: true,
     });
 
     howl.on('load', () => {
@@ -178,7 +109,7 @@ export class AudioPlayer {
     const { howl, testProps, callbacks } = this.audios[src];
 
     if (!howl) {
-      throw new Error(`Audio ${src} must be loaded manually`);
+      throw new Error(`Audio ${src} must be Loaded manually`);
     }
 
     // reset all listeners
@@ -195,7 +126,7 @@ export class AudioPlayer {
         log: {
           name: testProps?.name,
           ref: testProps?.id,
-          timestamp: payload?.playOffset,
+          timestamp: payload?.playOffset || howl.seek(),
           event: AudioEvents.playing,
         },
       });
