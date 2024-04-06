@@ -1,26 +1,24 @@
 import EventEmitter from 'eventemitter3';
 
 class EventDispatcher extends EventEmitter {
-  logsEnabled: boolean;
+  #isLogEnabled: boolean = false;
 
   constructor() {
     super();
-
-    this.logsEnabled = false;
   }
 
   enableLogs() {
-    this.logsEnabled = true;
+    this.#isLogEnabled = true;
   }
 
   disableLogs() {
-    this.logsEnabled = false;
+    this.#isLogEnabled = false;
   }
 
   emit(...args: Parameters<EventEmitter['emit']>) {
     const [event, ...eventArgs] = [...args];
 
-    if (this.logsEnabled) {
+    if (this.#isLogEnabled) {
       console.log(`Event: ${event.toString()}`, ...eventArgs);
     }
 
