@@ -11,12 +11,21 @@ export function AudioControls({ sample }: AudioControlsProps) {
   const controls = useAudioControls(src);
 
   return (
-    <div>
-      <p>{name}</p>
-      <a href={src} target="_blank">
-        {src}
-      </a>
-      <p>{speech_to_text}</p>
+    <div
+      style={{
+        backgroundColor: 'lightblue',
+        padding: '5px',
+        margin: '5px',
+        borderRadius: '5px',
+      }}
+    >
+      <p>
+        {name}
+        <a href={src} target="_blank" style={{ paddingLeft: '1ch' }}>
+          {src}
+        </a>
+      </p>
+      <p className="italics">{speech_to_text}</p>
       <button onClick={controls.play} disabled={!controls.isPlayable}>
         ▶️ Play
       </button>

@@ -4,6 +4,9 @@
     "titleBar.activeBackground": "#622868",
     "titleBar.activeForeground": "#FCF9FC"
   },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
