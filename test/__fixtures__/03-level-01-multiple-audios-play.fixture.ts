@@ -1,9 +1,5 @@
 import { AudioFixture } from '../__structures__/audio-fixture';
-import {
-  toAssertions,
-  toAssets,
-  toSequenceSteps,
-} from '../__structures__/conversions';
+import { toAssertions, toAssets, toSequenceSteps } from '../__structures__/conversions';
 
 const raw = {
   assets: [
@@ -21,6 +17,18 @@ const raw = {
     },
   ],
   sequence: [
+    {
+      id: '77c24f1f-61ef-4227-906d-52e502bea8fa',
+      ref: 'edcc8678-7742-40c0-82aa-c1df729ca46d',
+      timestamp: 0,
+      action: 'load',
+    },
+    {
+      id: 'aef898f4-d62a-4e7e-8b99-d3871446f5ad',
+      ref: '13a70dcd-e26e-4717-8551-757e05b1ced3',
+      timestamp: 0,
+      action: 'load',
+    },
     {
       id: '13e91628-5e14-485d-b3c2-ae23ee50e2ce',
       ref: 'edcc8678-7742-40c0-82aa-c1df729ca46d',

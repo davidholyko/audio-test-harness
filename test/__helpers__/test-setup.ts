@@ -1,16 +1,8 @@
 import { vi } from 'vitest';
-import {
-  AudioActions,
-  AudioEvents,
-  TimeInMilleseconds,
-} from '../../src/types/audio.types';
+import { AudioActions, AudioEvents, TimeInMilleseconds } from '../../src/types/audio.types';
 import { AuditLogEntry } from '../../src/types/event-dispatcher.types';
 import { audioPlayer } from '../../src/utils/audio-player';
-import {
-  AudioAssertion,
-  AudioAsset,
-  AudioStep,
-} from '../__structures__/audio-fixture.types';
+import { AudioAssertion, AudioAsset, AudioStep } from '../__structures__/audio-fixture.types';
 import { eventDispatcher } from '../../src/utils/event-dispatcher';
 
 import '../../src/augments';
@@ -45,32 +37,26 @@ export const setupAuditTrail = (assertions: AudioAssertion[]) => {
   return logger;
 };
 
-export const loadAssets = (
-  _sequenceToPlay: AudioStep[],
-  assetsToLoad: AudioAsset[]
-) => {
-  assetsToLoad.forEach((asset) => {
-    const testProps = {
-      ...asset,
-      playOffset: 0 as TimeInMilleseconds,
-      pauseOffset: 0 as TimeInMilleseconds,
-    };
-
-    audioPlayer.load(asset.src, { testProps });
-  });
-};
-
-export const performSequenceSteps = (
-  sequenceToPlay: AudioStep[],
-  assetsAlreadyLoaded: AudioAsset[]
-) => {
+export const performSequenceSteps = (sequenceToPlay: AudioStep[], assetsToLoad: AudioAsset[]) => {
   sequenceToPlay.forEach((step) => {
     const { id, timestamp, ref, action } = step;
 
-    const referenceAsset = assetsAlreadyLoaded.find(({ id }) => id === ref);
+    const referenceAsset = assetsToLoad.find(({ id }) => id === ref);
 
     if (!referenceAsset) {
       throw new Error(`Step id ${id} failed. Asset for ref: ${ref} not found`);
+    }
+
+    if (action === AudioActions.load) {
+      setTimeout(() => {
+        const testProps = {
+          ...referenceAsset,
+          playOffset: 0 as TimeInMilleseconds,
+          pauseOffset: 0 as TimeInMilleseconds,
+        };
+
+        audioPlayer.load(referenceAsset.src, { testProps });
+      }, timestamp);
     }
 
     if (action === AudioActions.play) {
@@ -124,7 +110,6 @@ export function fullSetup({
 }) {
   startCleanSlate();
   const auditLogger = setupAuditTrail(assertions);
-  loadAssets(sequence, assets);
   performSequenceSteps(sequence, assets);
 
   vi.runAllTimers();
