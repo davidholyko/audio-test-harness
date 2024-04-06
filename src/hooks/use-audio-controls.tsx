@@ -1,16 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
-import { AudioEvents, AudioSource } from '../types/audio.types';
+import { AudioEvent, AudioEvents, AudioSource } from '../types/audio.types';
 import { audioPlayer } from '../utils/audio-player';
+
+const { not_loaded, loaded, playing, paused, stopped, ended } = AudioEvents;
 
 export const useAudioControls = (src: AudioSource) => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [eventStatus, setEventStatus] = useState<AudioEvents>(AudioEvents.not_loaded);
+  const [logs, setLogs] = useState<AudioEvent[]>([not_loaded]);
+  const log = useMemo(() => [...logs].pop(), [logs])!;
 
   useEffect(() => {
     audioPlayer.load(src, {
       callbacks: {
         onEventChange: (status: AudioEvents) => {
-          setEventStatus(status);
+          setLogs((prevStatus) => [...prevStatus, status]);
           !isLoaded && setIsLoaded(true);
         },
       },
@@ -35,25 +38,24 @@ export const useAudioControls = (src: AudioSource) => {
      * Audio is resumable if:
      *   * it has already been played and then paused
      */
-    const isResumable = eventStatus === AudioEvents.paused;
+    const isResumable = log === paused;
     /**
-     * Audio is resumable if:
+     * Audio is stoppable if:
      *   * it is currently playing
      */
-    const isStoppable = eventStatus === AudioEvents.playing;
+    const isStoppable = log === playing;
     /**
-     * Audio is resumable if:
+     * Audio is pausable if:
      *   * it is currently playing
      */
-    const isPausable = eventStatus === AudioEvents.playing;
+    const isPausable = log === playing;
     /**
      * Audio is playable if:
-     *   * it has not started or ended
-     *   * it is not currently playing
+     *   * it has not started
+     *   * it has already ended
+     *   * it has already been stopped
      */
-    const isPlayable = [AudioEvents.loaded, AudioEvents.ended, AudioEvents.stopped].includes(
-      eventStatus
-    );
+    const isPlayable = [loaded, ended, stopped].includes(AudioEvents[log]);
 
     return {
       isResumable,
@@ -61,7 +63,7 @@ export const useAudioControls = (src: AudioSource) => {
       isPausable,
       isPlayable,
     };
-  }, [eventStatus]);
+  }, [logs]);
 
   return {
     ...status,
