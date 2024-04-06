@@ -31,7 +31,10 @@ declare module 'howler' {
      * ```shell
      * # load at 0000
      * # play at 3000
-     * #   the assertions should say playing at 3000
+     *
+     * # ### the assertions should say
+     * # ###   audio loaded at  0000
+     * # ###   audio playing at 3000
      * ````
      *
      * @param {TimeInMilleseconds} value
@@ -43,14 +46,14 @@ declare module 'howler' {
      * @summary
      * pauseOffset represents the time in between the last pause and play
      * ```shell
-     * # audio is 5 seconds
+     * # ### audio is 5000 milleseconds in duration
      *
      * # play at    0000
-     * # pause at   2000
-     * # resume at  3000 # there are 3 seconds left
+     * # pause at   2000 # there are 3 seconds when paused
+     * # resume at  3000
      * # end at     6000
      *
-     * # 6000 comes from 5 second duration + 1 second pause duration
+     * # ### 6000 comes from 5 second duration + 1 second pause duration
      * ```
      *
      * @param {TimeInMilleseconds} value
